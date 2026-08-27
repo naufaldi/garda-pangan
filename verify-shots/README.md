@@ -2,6 +2,8 @@
 
 Captured on branch `cursor/fix-homepage-mobile-hero-logos-4ea1` after `npm run build && npm run preview` (port 4321).
 
+Updated 2026-08-27: mobile layout aligned to live reference — volunteer bottom-left, fact right-aligned, stats in single-column rows with comma formatting.
+
 | File | Description |
 |------|-------------|
 | `01-live-reference-390.png` | Production reference — https://gardapangan.org/id/ after GSAP pin settled |

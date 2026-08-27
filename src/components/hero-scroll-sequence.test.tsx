@@ -124,7 +124,7 @@ describe('HeroScrollSequence', () => {
     ).toBeTruthy()
     expect(screen.getByAltText('Volunteer')).toBeTruthy()
     expect(screen.getByText(/makanan berhasil diselamatkan/i)).toBeTruthy()
-    expect(screen.getByText(/29294/)).toBeTruthy()
+    expect(screen.getByText(/29,294/)).toBeTruthy()
   })
 
   test('uses a mobile-safe facts overlay layout in the animated hero', () => {
