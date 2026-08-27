@@ -378,7 +378,9 @@ export function HeroScrollSequence(props: HeroScrollSequenceProps) {
 
     window.addEventListener('load', refreshScroll)
     window.addEventListener('resize', refreshScroll)
-    document.fonts.ready.then(refreshScroll).catch(() => undefined)
+    if (document.fonts) {
+      document.fonts.ready.then(refreshScroll).catch(() => undefined)
+    }
 
     setIsScrollReady(true)
 
