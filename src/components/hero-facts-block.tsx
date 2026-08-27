@@ -181,6 +181,13 @@ export function HeroFactsBlock({
             </svg>
           </div>
 
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute right-3 top-3 z-[1] sm:right-4 sm:top-4"
+          >
+            <GardaLogo className="origin-top-right shrink-0 scale-90 transform opacity-30 invert brightness-0 md:scale-110" />
+          </div>
+
           <div className="relative z-10 grid grid-cols-[minmax(0,42%)_minmax(0,58%)] items-start gap-x-3 gap-y-2 md:gap-8">
             <div className="flex min-w-0 flex-col items-start justify-start gap-0">
               <h2
@@ -189,7 +196,6 @@ export function HeroFactsBlock({
               >
                 {renderDidYouKnowTitle(title)}
               </h2>
-              <GardaLogo className="pointer-events-none mt-4 hidden origin-top-left shrink-0 scale-150 transform opacity-30 invert brightness-0 md:block" />
             </div>
             <div className="flex w-full min-w-[11.5rem] flex-col justify-start self-stretch pt-0 md:max-w-md md:pt-1">
               <DidYouKnowCarouselInternal slides={didYouKnowSlides} />
