@@ -6,6 +6,7 @@ import { HeroScrollSequence } from './hero-scroll-sequence'
 const timelineMock = {
   to: vi.fn().mockReturnThis(),
   fromTo: vi.fn().mockReturnThis(),
+  call: vi.fn().mockReturnThis(),
 }
 
 vi.mock('#/lib/gsap-client', () => ({
@@ -80,12 +81,10 @@ describe('HeroScrollSequence', () => {
     expect(screen.getByTestId('hero-scroll-sequence')).toBeTruthy()
     expect(screen.getByTestId('hero-o-portal')).toBeTruthy()
     expect(screen.getByTestId('hero-reveal-image')).toBeTruthy()
-    expect(
-      (
-        screen.getByTestId('hero-reveal-image') as HTMLImageElement
-      ).getAttribute('src'),
-    ).toBe('/garda-hero-reference.png')
-    expect(screen.getByText(/portions of food rescued/i)).toBeTruthy()
+    expect(screen.getByTestId('hero-reveal-image').getAttribute('src')).toBe(
+      '/garda-hero-reference.png',
+    )
+    expect(screen.getByText(/of food rescued/i)).toBeTruthy()
     expect(
       screen.getByRole('heading', { name: /tahukah kamu\?/i }),
     ).toBeTruthy()
@@ -106,9 +105,34 @@ describe('HeroScrollSequence', () => {
 
   test('renders reduced-motion fallback without tall scroll wrapper', () => {
     mockMatchMedia(true)
-    render(<HeroScrollSequence />)
+    render(
+      <HeroScrollSequence
+        impactStats={[
+          { id: 1, label: 'Porsi Makanan berhasil Diselamatkan', value: '825002' },
+          { id: 2, label: 'orang warga Pra-Sejahtera Penerima Manfaat', value: '29294' },
+          { id: 3, label: 'KG Sampah Makanan Diproses Menjadi Pakan Ternak', value: '658000' },
+          { id: 4, label: 'KGCO2-ek emisi gas rumah kaca berhasil dicegah', value: '1506416' },
+        ]}
+      />,
+    )
 
     expect(screen.getByTestId('hero-scroll-sequence-static')).toBeTruthy()
     expect(screen.queryByTestId('hero-scroll-sequence')).toBeNull()
+    expect(screen.getByTestId('hero-facts-block')).toBeTruthy()
+    expect(
+      screen.getByRole('heading', { name: /tahukah kamu\?/i }),
+    ).toBeTruthy()
+    expect(screen.getByAltText('Volunteer')).toBeTruthy()
+    expect(screen.getByText(/makanan berhasil diselamatkan/i)).toBeTruthy()
+    expect(screen.getByText(/29294/)).toBeTruthy()
+  })
+
+  test('uses a mobile-safe facts overlay layout in the animated hero', () => {
+    mockMatchMedia(false)
+    render(<HeroScrollSequence />)
+
+    const factsOverlay = screen.getByTestId('hero-facts-overlay')
+    expect(factsOverlay.className).toMatch(/max-md:items-end/)
+    expect(factsOverlay.className).toMatch(/max-md:overflow-y-auto/)
   })
 })

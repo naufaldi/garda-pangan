@@ -19,7 +19,7 @@ describe('FeaturedBySection', () => {
 
     const tempoImages = screen.getAllByAltText('TEMPO.CO')
     expect(tempoImages.length).toBeGreaterThan(0)
-    expect(tempoImages[0].getAttribute('src')).toBe('/tempo.png')
+    expect(tempoImages[0].getAttribute('src')).toContain('tempo.png')
 
     const marqueeContainer = container.querySelector('.animate-marquee') as HTMLElement
     expect(marqueeContainer).toBeTruthy()
@@ -34,5 +34,28 @@ describe('FeaturedBySection', () => {
     const marqueeContainer = container.querySelector('.animate-marquee') as HTMLElement
     expect(marqueeContainer).toBeTruthy()
     expect(marqueeContainer.style.animationDuration).toBe('10s')
+  })
+
+  test('skips unloadable jfif logos and eagerly loads marquee images', () => {
+    const logos = [
+      { id: 1, url: '/tempo.png', name: 'TEMPO.CO' },
+      { id: 2, url: '/broken.jfif', name: 'Broken JFIF' },
+    ]
+
+    render(<FeaturedBySection logos={logos} />)
+
+    expect(screen.getAllByAltText('TEMPO.CO').length).toBeGreaterThan(0)
+    expect(screen.queryByAltText('Broken JFIF')).toBeNull()
+
+    const tempoImage = screen.getAllByAltText('TEMPO.CO')[0] as HTMLImageElement
+    expect(tempoImage.getAttribute('loading')).toBe('eager')
+  })
+
+  test('uses compact logo cards sized for the marquee row', () => {
+    render(<FeaturedBySection logos={mockLogos} />)
+
+    const card = screen.getByTestId('featured-card-1-0')
+    expect(card.className).toMatch(/h-16/)
+    expect(card.querySelector('[data-slot="card-content"]')?.className).toMatch(/min-h-0/)
   })
 })

@@ -1,5 +1,8 @@
+import { useState } from 'react'
+
 import { LogoCard } from './logo-card'
 import { SectionShell } from './section-shell'
+import { isUnloadableLogoUrl } from '#/lib/logo-media'
 import { normalizeStrapiMediaUrl } from '#/lib/strapi/client'
 
 const featuredLogos = [
@@ -19,18 +22,36 @@ type LogoItem = {
   variant?: string
 }
 
-function FeaturedLogoContent({ logo }: { logo: LogoItem }) {
-  if (logo.url) {
-    return (
-      <img
-        src={normalizeStrapiMediaUrl(logo.url) ?? undefined}
-        alt={logo.label ?? ''}
-        loading="lazy"
-        decoding="async"
-        className="h-12 w-auto object-contain"
-      />
-    )
+function FeaturedLogoTile({
+  logo,
+  index,
+}: {
+  logo: LogoItem
+  index: number
+}) {
+  const src = normalizeStrapiMediaUrl(logo.url)
+  const [failed, setFailed] = useState(false)
+
+  if (!src || isUnloadableLogoUrl(src) || failed) {
+    return null
   }
+
+  return (
+    <LogoCard
+      compact
+      data-testid={`featured-card-${logo.id}-${index}`}
+      className="flex h-16 w-[120px] shrink-0 items-center justify-center rounded-sm border-transparent bg-white shadow-none"
+    >
+      <img
+        src={src}
+        alt={logo.label ?? ''}
+        loading="eager"
+        decoding="async"
+        onError={() => setFailed(true)}
+        className="h-12 max-w-[96px] w-auto object-contain"
+      />
+    </LogoCard>
+  )
 }
 
 type FeaturedBySectionProps = {
@@ -44,11 +65,18 @@ export function FeaturedBySection({
   logos,
   speed = '25s',
 }: FeaturedBySectionProps) {
-  const items: LogoItem[] =
+  const sourceItems: LogoItem[] =
     logos && logos.length > 0
-      ? logos.map((l) => ({ id: l.id, url: l.url, label: l.name }))
+      ? logos.map((logo) => ({
+          id: logo.id,
+          url: logo.url,
+          label: logo.name,
+        }))
       : featuredLogos
 
+  const items = sourceItems.filter(
+    (logo) => logo.url && !isUnloadableLogoUrl(logo.url),
+  )
   const track = [...items, ...items]
 
   return (
@@ -68,30 +96,26 @@ export function FeaturedBySection({
           </h2>
         </div>
 
-        {/* Marquee strip */}
         <div
           data-testid="featured-marquee"
           className="relative overflow-hidden"
           aria-label="Featured by media"
         >
-          {/* Left fade */}
           <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-linear-to-r from-(--color-bg,#0c2b1a) to-transparent" />
-          {/* Right fade */}
           <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-linear-to-l from-(--color-bg,#0c2b1a) to-transparent" />
 
           <div
             className="flex animate-marquee gap-4"
             style={{ width: 'max-content', animationDuration: speed }}
           >
-            {track.map((logo, i) => (
-              <LogoCard
-                key={`${logo.id}-${i}`}
-                data-testid={`featured-card-${logo.id}-${i}`}
-                className="h-16 w-[120px] rounded-sm border-transparent bg-white shadow-none flex justify-center items-center"
-                aria-hidden={i >= items.length}
+            {track.map((logo, index) => (
+              <div
+                key={`${logo.id}-${index}`}
+                aria-hidden={index >= items.length}
+                className="shrink-0"
               >
-                <FeaturedLogoContent logo={logo} />
-              </LogoCard>
+                <FeaturedLogoTile logo={logo} index={index} />
+              </div>
             ))}
           </div>
         </div>

@@ -1,20 +1,10 @@
 import { useLayoutEffect, useRef, useState } from 'react'
-import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
-import Autoplay from 'embla-carousel-autoplay'
+import { ChevronDown } from 'lucide-react'
 
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from '#/components/ui/carousel'
-import type { CarouselApi } from '#/components/ui/carousel'
-
-import { DidYouKnowSection } from './did-you-know-section'
-import { GardaButton } from './garda-button'
-import { GardaLogo } from './garda-logo'
+import { HeroFactsBlock } from './hero-facts-block'
 import { HeroTitle } from './hero-title'
+import { GardaButton } from './garda-button'
 import { ensureGsapPlugins, gsap, ScrollTrigger } from '#/lib/gsap-client'
-import { buildImpactMetrics } from '#/lib/impact-metrics'
 import { normalizeStrapiMediaUrl } from '#/lib/strapi/client'
 
 const SCROLL_DISTANCE_VH = 420
@@ -107,6 +97,7 @@ function HeroScrollSequenceStatic({
   ctaLink,
   backgroundImage,
   didYouKnowSlides,
+  didYouKnowTitle,
   portionsRescued,
   co2Reduced,
   foodLossPotential,
@@ -118,13 +109,6 @@ function HeroScrollSequenceStatic({
   const impactBgUrl =
     normalizeStrapiMediaUrl(impactBackgroundImage) ||
     '/garda-hero-reference.png'
-  const metrics = buildImpactMetrics({
-    portionsRescued,
-    co2Reduced,
-    foodLossPotential,
-    foodScrap,
-    stats: impactStats,
-  })
   const headingLabel = title || 'ONE STOP FOOD LOSS & WASTE SOLUTION'
 
   return (
@@ -179,108 +163,20 @@ function HeroScrollSequenceStatic({
         <div className="absolute inset-0 bg-garda-forest-deep/20" />
         <div className="absolute inset-0 bg-linear-to-b from-garda-forest-deep/10 via-transparent to-garda-forest-deep/55" />
 
-        {/* <div className="relative z-10 flex min-h-screen flex-col justify-end px-6 pb-24 pt-32 sm:px-12 md:px-16 lg:px-24">
-          <div
-            data-testid="hero-impact-stats"
-            className="mx-auto grid w-full max-w-6xl gap-8 sm:grid-cols-2 lg:grid-cols-4"
-          >
-            {metrics.map((metric) => {
-              const numMatch = metric.value.match(/[\d,.]+/)
-              const numStr = numMatch ? numMatch[0] : ''
-              const [unit, ...restLabel] = metric.label.split(' ')
-              const remainingLabel = restLabel.join(' ')
-
-              return (
-                <div key={metric.label} className="text-left flex flex-col">
-                  <div className="flex items-baseline gap-2 text-garda-sun">
-                    <span className="font-serif text-[clamp(2rem,4vw,3.25rem)] leading-none">
-                      {numStr ? (
-                        <span
-                          className="impact-number"
-                          data-value={numStr.replace(/,/g, '')}
-                        >
-                          0
-                        </span>
-                      ) : (
-                        metric.value
-                      )}
-                    </span>
-                    {unit && (
-                      <span className="text-sm font-medium uppercase tracking-widest sm:text-base">
-                        {unit}
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-3 text-xs font-medium uppercase tracking-[0.12em] text-white/90 sm:text-sm">
-                    {remainingLabel}
-                  </p>
-                </div>
-              )
-            })}
-          </div>
-        </div> */}
+        <div className="relative z-10 flex min-h-screen items-end justify-center px-4 pb-6 pt-20 sm:px-12 sm:pb-12 sm:pt-28 md:items-center md:px-16 md:pb-24 md:pt-32 lg:px-24">
+          <HeroFactsBlock
+            didYouKnowSlides={didYouKnowSlides}
+            didYouKnowTitle={didYouKnowTitle}
+            portionsRescued={portionsRescued}
+            co2Reduced={co2Reduced}
+            foodLossPotential={foodLossPotential}
+            foodScrap={foodScrap}
+            impactStats={impactStats}
+            animateNumbers={false}
+          />
+        </div>
       </section>
-
-      <DidYouKnowSection
-        slides={didYouKnowSlides}
-        variant="immersive"
-        autoPlay
-      />
     </div>
-  )
-}
-
-function DidYouKnowCarouselInternal({
-  slides,
-}: {
-  slides?: { id: number | string; content: string }[]
-}) {
-  const plugin = useRef(Autoplay({ delay: 3000, stopOnInteraction: true }))
-  const [carouselApi, setCarouselApi] = useState<CarouselApi>()
-  const items =
-    slides && slides.length > 0
-      ? slides
-      : [
-        {
-          id: 'default',
-          content:
-            '“Kalau sepertiga makanan yang diproduksi di seluruh dunia terbuang sia-sia? Kerugian ekonomi yang ditimbulkan juga luar biasa besar!”',
-        },
-      ]
-
-  return (
-    <Carousel
-      opts={{ align: 'start', loop: true }}
-      plugins={[plugin.current]}
-      setApi={setCarouselApi}
-      className="w-full static"
-    >
-      <CarouselContent>
-        {items.map((slide) => (
-          <CarouselItem key={slide.id}>
-            <p className="text-white text-lg md:text-xl font-medium leading-relaxed text-right pb-20">
-              {slide.content}
-            </p>
-          </CarouselItem>
-        ))}
-      </CarouselContent>
-      <div className="absolute bottom-0 right-0 flex justify-end md:gap-4 gap-2 z-20">
-        <button
-          onClick={() => carouselApi?.scrollPrev()}
-          className="md:w-14 md:h-14 w-10 h-10 rounded-full bg-garda-sun text-[#0d2b14] flex items-center justify-center transition-transform hover:scale-105"
-          aria-label="Previous fact"
-        >
-          <ChevronLeft className="size-6 stroke-2" />
-        </button>
-        <button
-          onClick={() => carouselApi?.scrollNext()}
-          className="md:w-14 md:h-14 w-10 h-10 rounded-full bg-garda-sun text-[#0d2b14] flex items-center justify-center transition-transform hover:scale-105"
-          aria-label="Next fact"
-        >
-          <ChevronRight className="size-6 stroke-2" />
-        </button>
-      </div>
-    </Carousel>
   )
 }
 
@@ -297,18 +193,10 @@ export function HeroScrollSequence(props: HeroScrollSequenceProps) {
   const revealImageRef = useRef<HTMLImageElement>(null)
   const impactOverlayRef = useRef<HTMLDivElement>(null)
   const heroContentRef = useRef<HTMLDivElement>(null)
-  const statsRef = useRef<HTMLDivElement>(null)
   const factsRef = useRef<HTMLDivElement>(null)
   const oPortalRef = useRef<HTMLSpanElement>(null)
 
   const heroBgUrl = resolveHeroBackground(props.backgroundImage)
-  const metrics = buildImpactMetrics({
-    portionsRescued: props.portionsRescued,
-    co2Reduced: props.co2Reduced,
-    foodLossPotential: props.foodLossPotential,
-    foodScrap: props.foodScrap,
-    stats: props.impactStats,
-  })
   const headingLabel = props.title || 'ONE STOP FOOD LOSS & WASTE SOLUTION'
 
   const impactBgUrl =
@@ -391,13 +279,12 @@ export function HeroScrollSequence(props: HeroScrollSequenceProps) {
     }
 
     const initialRadius = portal.portalSize / 2
-    const maxRadius = getMaxCircleRadius(portal, pin)
     paintRevealCircle(initialRadius)
 
     gsap.set([facts, impactOverlay], { opacity: 0 })
     gsap.set(facts, { y: 24 })
 
-    const revealState = { radius: initialRadius, maxRadius }
+    const revealState = { radius: initialRadius, maxRadius: initialRadius }
 
     const ctx = gsap.context(() => {
       const timeline = gsap.timeline({
@@ -446,8 +333,8 @@ export function HeroScrollSequence(props: HeroScrollSequenceProps) {
 
       timeline.to(
         facts,
-        { opacity: 1, y: 0, duration: 0.2, ease: 'power2.out' },
-        0.52,
+        { opacity: 1, y: 0, duration: 0.16, ease: 'power2.out' },
+        0.5,
       )
 
       let numbersAnimated = false
@@ -471,10 +358,10 @@ export function HeroScrollSequence(props: HeroScrollSequenceProps) {
           })
         },
         [],
-        0.52,
+        0.5,
       )
 
-      // Note: Removed facts fade out and stats fade in to keep the combined layout visible
+      timeline.to({}, { duration: 0.34 })
     }, wrapper)
 
     const refreshScroll = () => {
@@ -491,7 +378,7 @@ export function HeroScrollSequence(props: HeroScrollSequenceProps) {
 
     window.addEventListener('load', refreshScroll)
     window.addEventListener('resize', refreshScroll)
-    document.fonts?.ready.then(refreshScroll).catch(() => undefined)
+    document.fonts.ready.then(refreshScroll).catch(() => undefined)
 
     setIsScrollReady(true)
 
@@ -583,20 +470,7 @@ export function HeroScrollSequence(props: HeroScrollSequenceProps) {
                 impactBackgroundImage={impactBgUrl}
               />
             </h1>
-            {/* {props.subtitle ? (
-              <p className="max-w-[600px] text-lg font-medium text-white/85 sm:text-xl">
-                {props.subtitle}
-              </p>
-            ) : null} */}
           </div>
-
-          {/* <GardaButton
-            href={props.ctaLink || '/program'}
-            variant="hero"
-            className="h-16 px-8 text-lg"
-          >
-            {props.ctaText || 'Pelajari Selengkapnya'}
-          </GardaButton> */}
 
           <a
             href="#featured-by"
@@ -609,115 +483,19 @@ export function HeroScrollSequence(props: HeroScrollSequenceProps) {
 
         <div
           ref={factsRef}
-          className="pointer-events-none absolute inset-0 z-30 flex items-center opacity-0"
+          data-testid="hero-facts-overlay"
+          className="pointer-events-none absolute inset-0 z-30 flex items-center opacity-0 max-md:items-end max-md:justify-center max-md:overflow-y-auto max-md:pb-2 max-md:pt-14"
         >
-          <div className="pointer-events-auto w-full px-6 sm:px-12 md:px-16 lg:px-24">
-            <div className="relative mx-auto max-w-5xl mt-6 md:mt-12">
-              {/* Top Card */}
-              <div className="relative bg-[#0d2b14] rounded-[2rem] p-5 md:p-10 overflow-hidden shadow-2xl">
-                {/* Watermark Logo Placeholder */}
-                <div className="absolute -bottom-16 -left-16 text-white/5 opacity-20 pointer-events-none">
-                  <svg
-                    width="400"
-                    height="400"
-                    viewBox="0 0 100 100"
-                    fill="currentColor"
-                  >
-                    <path d="M50 0 C22.4 0 0 22.4 0 50 C0 77.6 22.4 100 50 100 C77.6 100 100 77.6 100 50 C100 22.4 77.6 0 50 0 Z M50 90 C27.9 90 10 72.1 10 50 C10 27.9 27.9 10 50 10 C72.1 10 90 27.9 90 50 C90 72.1 72.1 90 50 90 Z" />
-                  </svg>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-4 md:gap-8 relative z-10">
-                  <div className="flex flex-row md:flex-col items-center md:items-start justify-between md:justify-start gap-4 md:gap-0">
-                    <h2 className="text-garda-sun font-serif text-[clamp(1.75rem,4vw,3.5rem)] leading-[1.1]">
-                      {(() => {
-                        const raw = props.didYouKnowTitle ?? 'Tahukah Kamu?'
-                        // If string contains explicit newlines, render them
-                        if (/\r?\n/.test(raw)) {
-                          return raw.split(/\r?\n/).map((line, i) => (
-                            <span key={i}>
-                              {line}
-                              {i < raw.split(/\r?\n/).length - 1 ? <br /> : null}
-                            </span>
-                          ))
-                        }
-
-                        // Otherwise, split on the first space to mimic "Tahukah\nKamu?"
-                        const firstSpace = raw.lastIndexOf(' ')
-                        if (firstSpace > 0) {
-                          return (
-                            <>
-                              {raw.slice(0, firstSpace)}
-                              <br />
-                              {raw.slice(firstSpace + 1)}
-                            </>
-                          )
-                        }
-
-                        return raw
-                      })()}
-                    </h2>
-                    <GardaLogo className="md:mt-6 opacity-30 invert brightness-0 pointer-events-none transform scale-110 md:scale-150 origin-right md:origin-top-left shrink-0" />
-                  </div>
-                  <div className="flex flex-col justify-between items-end w-full max-w-md ml-auto">
-                    <DidYouKnowCarouselInternal
-                      slides={props.didYouKnowSlides}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Person Image */}
-              <div className="absolute left-1/3 md:left-1/2 -translate-x-1/2 top-[35%] md:top-[10%] z-10 w-[120px] sm:w-[140px] md:w-[300px] pointer-events-none">
-                <img
-                  src="/hero-facts.png"
-                  alt="Volunteer"
-                  loading="lazy"
-                  decoding="async"
-                  className="w-full h-auto drop-shadow-2xl"
-                />
-              </div>
-
-              {/* Bottom Card */}
-              <div className="relative bg-[#0d2b14] rounded-[2rem] p-4 sm:p-5 md:p-8 mt-6 sm:mt-10 md:mt-24 z-20 shadow-2xl">
-                <div className="grid grid-cols-1 md:grid-cols-2  gap-2 md:gap-5">
-                  {metrics.slice(0, 4).map((metric) => {
-                    const numMatch = metric.value.match(/[\d,.]+/)
-                    const numStr = numMatch ? numMatch[0] : ''
-                    const [unit, ...restLabel] = metric.label.split(' ')
-                    const remainingLabel = restLabel.join(' ')
-
-                    return (
-                      <div key={metric.label}>
-                        <div className="flex items-baseline gap-1.5 text-garda-sun mb-2 flex-wrap xl:flex-nowrap">
-                          <span className="font-serif text-2xl md:text-3xl lg:text-4xl xl:text-[2.5rem] tracking-tighter">
-                            {numStr ? (
-                              <span
-                                className="impact-number"
-                                data-value={numStr.replace(/,/g, '')}
-                              >
-                                0
-                              </span>
-                            ) : (
-                              metric.value
-                            )}
-                          </span>
-                          {unit && (
-                            <span className="text-xs md:text-sm uppercase tracking-wider">
-                              {unit}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-white/90 text-xs md:text-sm uppercase tracking-wider">
-                          {remainingLabel}
-                        </p>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
+          <HeroFactsBlock
+            didYouKnowSlides={props.didYouKnowSlides}
+            didYouKnowTitle={props.didYouKnowTitle}
+            portionsRescued={props.portionsRescued}
+            co2Reduced={props.co2Reduced}
+            foodLossPotential={props.foodLossPotential}
+            foodScrap={props.foodScrap}
+            impactStats={props.impactStats}
+            className="pointer-events-auto px-4 sm:px-12 md:px-16 lg:px-24"
+          />
         </div>
       </div>
     </div>
