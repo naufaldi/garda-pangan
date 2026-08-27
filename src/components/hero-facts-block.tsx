@@ -73,12 +73,12 @@ function DidYouKnowCarouselInternal({
       opts={{ align: 'start', loop: true }}
       plugins={[plugin.current]}
       setApi={setCarouselApi}
-      className="static w-full min-w-0"
+      className="static w-full min-w-0 max-w-none"
     >
       <CarouselContent>
         {items.map((slide) => (
-          <CarouselItem key={slide.id} className="min-w-0">
-            <p className="text-pretty break-words pb-12 text-right text-base font-medium leading-snug text-white md:pb-20 md:text-lg md:leading-relaxed lg:text-xl">
+          <CarouselItem key={slide.id} className="min-w-0 basis-full">
+            <p className="w-full text-pretty break-words pb-12 text-right text-base font-medium leading-snug text-white md:pb-20 md:text-lg md:leading-relaxed lg:text-xl">
               {slide.content}
             </p>
           </CarouselItem>
@@ -181,8 +181,8 @@ export function HeroFactsBlock({
             </svg>
           </div>
 
-          <div className="relative z-10 grid grid-cols-2 items-start gap-x-3 gap-y-2 md:gap-8">
-            <div className="flex flex-col items-start justify-start gap-0">
+          <div className="relative z-10 grid grid-cols-[minmax(0,42%)_minmax(0,58%)] items-start gap-x-3 gap-y-2 md:gap-8">
+            <div className="flex min-w-0 flex-col items-start justify-start gap-0">
               <h2
                 aria-label={title}
                 className="font-serif text-[clamp(1.5rem,6vw,3.5rem)] leading-[1.05] text-garda-sun"
@@ -191,7 +191,7 @@ export function HeroFactsBlock({
               </h2>
               <GardaLogo className="pointer-events-none mt-4 hidden origin-top-left shrink-0 scale-150 transform opacity-30 invert brightness-0 md:block" />
             </div>
-            <div className="flex min-w-0 flex-col items-end justify-start pt-0 md:max-w-md md:pt-1">
+            <div className="flex w-full min-w-[11.5rem] flex-col justify-start self-stretch pt-0 md:max-w-md md:pt-1">
               <DidYouKnowCarouselInternal slides={didYouKnowSlides} />
             </div>
           </div>
